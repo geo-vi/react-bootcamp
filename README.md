@@ -1,46 +1,266 @@
-# Getting Started with Create React App
+# React Bootcamp
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+#### Table of Contents
 
-## Available Scripts
+* Creating your first React project
+* Installing common libraries
+* The Skeleton
+    - The Setup
+    - Components and styles ft. Styled-Components
+    - Component lifecycle
+* Advanced states
+* How global state looks like?
+* How to Redux
 
-In the project directory, you can run:
 
-### `yarn start`
+#### Creating your first React project
+For the example we're going to use IntelliJ IDEA
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+`New Project -> JavaScript -> React`   
+Tick - Create TypeScript Project.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+This will create our React template (Install React with preset configured webpack, jest, ...)
 
-### `yarn test`
+#### Installing common libraries
+For this example we're going to need styled-components, baseui and react-router
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+`npm install styled-components`
+`npm install @types/styled-components`
+`npm install baseui styletron-engine-atomic styletron-react`
+`npm install @types/styletron-standard @types/styletron-react @types/styletron-engine-atomic`
+`npm install react-router-dom@6 history@5`
 
-### `yarn build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### The Skeleton
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+##### The Setup
+After the installation completes you should have the following folder structure present:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+*Below are not listed the irrelevant **for now** files*
+```
+/node_modules
+/public
+/src
+  - App.tsx
+  - index.tsx
+package.json
+tsconfig.json
+```
 
-### `yarn eject`
+As we are going to use styled-components instead of plain CSS, we are going to ignore all the css files
+and to reduce complexity we will skip the Unit Test part.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Lets delete the files that are going to be skipped so that we have a cleaner overview of the skeleton.
+`App.test.tsx, App.css, index.css, logo.svg`
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Now lets also correct our dependencies as we removed some imported files
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+index.tsx:
+```tsx
+ - import './index.css';
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+App.tsx
+```tsx
+- import logo from './logo.svg';
+- import './App.css';
+```
 
-## Learn More
+First as we installed baseui (BaseWeb by Uber) we need to declare it's dependencies within our App.tsx and lets
+on the way also get rid of default CRA (Create React App) boilerplate and replace it with something more creative ✨.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+App.tsx
+```tsx
+import React from 'react';
+import {Client as Styletron} from 'styletron-engine-atomic';
+import {Provider as StyletronProvider} from 'styletron-react';
+import {LightTheme, BaseProvider} from 'baseui';
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+const engine = new Styletron();
+
+function App() {
+  return (
+      <StyletronProvider value={engine}>
+        <BaseProvider theme={LightTheme}>
+            <div />
+        </BaseProvider>
+      </StyletronProvider>
+  );
+}
+
+export default App;
+```
+
+The initial setup stage is complete and its our turn to add something cool!
+
+The way we maintain good and clean architecture over time is that we split our React Components into "two types" of components
+- The main ones aka views aka pages
+- The dummies that get implemented into our views aka components
+
+So lets continue by adding a folder for our views and the folder structure should look like the following below:
+```
+/src
+  /components
+  /views
+  - App.tsx
+  - index.tsx
+  ...
+```  
+
+And now lets add our first view component and call it MainPage(.tsx)
+In lets write a basic function with a div and two Display (Display1, Display2) components (equivalent to h1,h2 just with Uber's custom styling).
+The component should look like below:
+```tsx
+import React from "react";
+import {Display1, Display2} from "baseui/typography";
+
+function MainPage() {
+    return (<div>
+        <Display2>✨ Sparking up our</Display2>
+        <Display1>Creativity</Display1>
+    </div>)
+}
+
+export default MainPage;
+```
+
+Lets perhaps add it some style? 🎨
+```tsx
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+`
+```
+
+We just declared a Styled Component (Component which has style that replaced the default html div's).
+Lets declare the component that we just created on top of our function within our MainPage render.
+The MainPage.tsx result will be the following:
+```tsx
+import React from "react";
+import {Display1, Display2} from "baseui/typography";
+import styled from "styled-components";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+`
+
+function MainPage() {
+    return (<Container>
+        <Display2>✨ Sparking up our</Display2>
+        <Display1>Creativity</Display1>
+    </Container>)
+}
+
+export default MainPage;
+```
+
+So congratulations 🎉  we just have built our first component and most important one as well
+because thats going to be our landing page.
+
+Currently if we look back into App.tsx we can see that below the baseui stuff underlaying we have just
+one alone sitting `<div />`. That is all that is getting rendered and all that will be displayed into our screen.
+
+Lets change that by declaring our cool view component MainPage that we just created.
+Declaration is as simple as `<MainPage />` and make sure that you also imported it (usually Intellij prompts you to do so but if you didnt you can also manually write an `import MainPage from "./views/MainPage";` on the top
+
+So our resulting App.tsx will look like that:
+```tsx
+import React from 'react';
+import {Client as Styletron} from 'styletron-engine-atomic';
+import {Provider as StyletronProvider} from 'styletron-react';
+import {LightTheme, BaseProvider} from 'baseui';
+import MainPage from "./views/MainPage";
+
+const engine = new Styletron();
+
+function App() {
+  return (
+      <StyletronProvider value={engine}>
+        <BaseProvider theme={LightTheme}>
+            <MainPage />
+        </BaseProvider>
+      </StyletronProvider>
+  );
+}
+
+export default App;
+```
+
+Now lets try running our example and verify its working using the following script:
+`npm run start`
+
+##### Components and styles ft. Styled-Components
+
+So that we can be better organized lets start by creating a dedicated folder for our components and call it `components`
+Our source dir should look like that:
+```
+/src
+  /components
+  /views
+    - MainPage.tsx
+  - App.tsx
+  - index.tsx
+  ...
+```  
+
+Within our components folder lets add a folder for all our dummy Styled components (Those which replace HTML default styles, as example - divs, headings, lists, ...) and call it `Styled`
+
+The source dir now will look:
+```
+  /components
+    /Styled
+  /views
+    - MainPage.tsx
+  - App.tsx
+  - index.tsx
+  ...
+```
+
+And within our new dir that we just created (Styled) lets also add the Container(.tsx) component.
+```
+  /components
+    /Styled
++     - Container.tsx
+  /views
+    - MainPage.tsx
+  - App.tsx
+  - index.tsx
+  ...
+```
+
+We can cut the Container declaration from MainPage(.tsx) and put it into our newly created component (file)
+```tsx
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+`
+```
+
+Resulting in the following contents of the Container(.tsx) styled component
+```tsx
+import styled from "styled-components";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+`
+
+// We should export it so that we can later import (reuse) it within our views or other components
+export default Container;
+```
+
+*Don't forget the import on MainPage(.tsx)!;-)*
+
