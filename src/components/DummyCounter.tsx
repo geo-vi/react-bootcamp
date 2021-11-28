@@ -12,6 +12,7 @@ function DummyCounter() {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
+            setCount(0);
         }, 3000)
     }, []);
 
